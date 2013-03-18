@@ -13,9 +13,9 @@ in participating in the project join our `workgroup`_
 Development Resources
 ---------------------
 
-Issue Tracker: http://issues.osehra.org/browse/CONV
-Wiki: http://wiki.osehra.org/display/CCONV/Home
-Workgroup: http://www.osehra.org/group/code-convergence
+* Issue Tracker: http://issues.osehra.org/browse/CONV
+* Wiki: http://wiki.osehra.org/display/CCONV/Home
+* Workgroup: http://www.osehra.org/group/code-convergence
 
 Purpose
 -------
