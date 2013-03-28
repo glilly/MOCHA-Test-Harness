@@ -25,8 +25,8 @@ PARSE(ZNUM) ; parse ien ZNUM and put the DOM in xml storage
  N GN S GN=$NA(^KBAI("MOCHA",ZNUM,"XML"))
  N ZLAST S ZLAST=$O(@GN@(""),-1) ; end of xml array
  ;I @GN@(ZLAST)'["PEPS" S @GN@(ZLAST+1)="</PEPSResponse>"
- I @GN@(ZLAST)'["</drugInfoResponse" S @GN@(ZLAST+1)="</drugInfoResponse>"
- S KBAIDID=$$EN^MXMLDOM($NA(@GN@("XML")),"V")
+ ;I @GN@(ZLAST)'["</drugInfoResponse" S @GN@(ZLAST+1)="</drugInfoResponse>"
+ S KBAIDID=$$EN^MXMLDOM($NA(@GN),"W")
  I KBAIDID=0 D  Q  ;
  . ZWRITE ^TMP("MXMLERR",$J,*)
  M ^KBAI("MOCHA",ZNUM,"DOM")=^TMP("MXMLDOM",$J,KBAIDID)
@@ -90,7 +90,7 @@ LOAD ; load mocha test xml files into ^KBAI("MOCHA") and index
  . ;N GN1 S GN1=$NA(@GR@(ZL,"XML",1,0))
  . N GN1 S GN1=$NA(@GR@(ZL,"XML",1))
  . Q:$$FTG^%ZISH(DIRNAME,FNAME,GN1,4)=""
- D FIXXML2 ; make sure that final tags are correct
+ ;D FIXXML2 ; make sure that final tags are correct
  Q
  ;
 MOCHATXF ; mocha test xml files
@@ -168,4 +168,45 @@ MOCHATXF ; mocha test xml files
  ;;typicalOrderCheckResponse.xml
  ;;typicalOrderCheck.xml
  Q
+ ;
+tree(which,where,prefix) ; show a tree starting at a node in MXML. where is passed by value
+ ; 
+ i $g(prefix)="" s prefix="|--" ; starting prefix
+ ;i '$d(C0XJOB) s C0XJOB=$J
+ n node s node=$na(^KBAI("MOCHA",which,"DOM",where))
+ n txt s txt=$$CLEAN($$ALLTXT(node))
+ w !,prefix_@node_" "_txt
+ n zi s zi=""
+ f  s zi=$o(@node@("A",zi)) q:zi=""  d  ;
+ . w !,prefix_"  : "_zi_"^"_$g(@node@("A",zi))
+ f  s zi=$o(@node@("C",zi)) q:zi=""  d  ;
+ . d tree(which,zi,"|  "_prefix)
+ q
+ ;
+show(what,where) ;
+ i '$d(where) s where=1
+ d tree(what,where)
+ q
+ ; 
+ALLTXT(where) ; extrinsic which returns all text lines from the node .. concatinated 
+ ; together
+ n zti s zti=""
+ n ztr s ztr=""
+ f  s zti=$o(@where@("T",zti)) q:zti=""  d  ;
+ . s ztr=ztr_$g(@where@("T",zti))
+ q ztr
+ ;
+CLEAN(STR) ; extrinsic function; returns string - gpl borrowed from the CCR package
+ ;; Removes all non printable characters from a string.
+ ;; STR by Value
+ N TR,I
+ F I=0:1:31,128:1:256 S TR=$G(TR)_$C(I)
+ S TR=TR_$C(127)
+ N ZR S ZR=$TR(STR,TR)
+ S ZR=$$LDBLNKS(ZR) ; get rid of leading blanks
+ QUIT ZR
+ ;
+LDBLNKS(st) ; extrinsic which removes leading blanks from a string
+ n pos f pos=1:1:$l(st)  q:$e(st,pos)'=" "
+ q $e(st,pos,$l(st))
  ;
